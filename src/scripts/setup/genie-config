@@ -23,6 +23,9 @@ libs="-L$libdir -lGAlgorithm -lGBaryonResonance -lGBase -lGBodekYang -lGCharm -l
  -lGQEL -lGRES -lGRegistry -lGReinSehgal -lGSingleKaon -lGUtils -lGVHE"
 
 # the following libs should only be there if an appropriate option was enabled at the configuration step
+if test "$GOPT_ENABLE_VALIDATION_TOOLS" = "YES"; then
+  libs="$libs -lGDCBase"
+fi
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
   libs="$libs -lGGeo"
 fi

@@ -1,0 +1,172 @@
+
+This validation application benchmarks GENIE's Q2 QECC predictions vs MINERvA measurements. 
+
+The write-up contains very short information about the application, together with several 
+practical tips/instructions.
+
+*******************************************
+*                                         *
+* WARNING: NOTE NEEDS TO BE UPDATED !!!!! *
+*                                         *
+*******************************************
+
+More detailed information is provided in the MINERvA_Q2QE_validation document.
+The LaTex vesrion of the document is stored as
+doc/MINERvA_Q2QE_validation.tex
+
+To compose a PDF document, please do as follows:
+cd doc
+latex MINERvA_Q2QE_validation
+dvipdf MINERvA_Q2QE_validation
+
+
+1. General Info and Setup
+
+In order to build and run the application, you'll need:
+-- GENIE package (and all its externals/dependencies)
+-- RooMUHisto package (see papt 2)
+
+GENIE is often centrally available of many machines/clusters at Fermilab.
+
+The RooMUHisto package needs to be build, as it's still development/test stage.
+
+For this particular excercise you need to do the following:
+
+a) login to cluck.fnal.gov
+b) source /products/setup
+c) setup genie v2_8_0d -q "e4:prof"
+d) build/setup RooMUHistos - see part 2
+e) if you have RooMUHistos already build, you'll only need to run the following:
+   cd /to/where/RooMUHistos
+   source env_set.sh
+   
+Now you should be reasonably set to build and run the application.
+
+2. Histogram Plotter-Analyzer (RooMUHistos)
+
+We use the RooMUHisto framework to display and compare the experimental data and/or simulated results.
+
+Minimal instructions are as follow:
+
+a) choose where you want to install the package
+b) git clone https://github.com/ManyUniverseAna/RooMUHistos
+c) Bear in mind that upon GENIE setup you'll have ROOT setup as well, so you wont need to worry about
+   installing ROOT which is required for RooMUHisto
+d) cd RooMUHistos
+e) source env_set.sh
+f) cd PlotUtils
+g) make
+
+If you wish, yu can also build and try examples
+h) cd ../macros
+i) make
+
+
+3. Generate GENIE sample
+
+
+  -- Splines
+
+For this particular application you can download the vA splines from hepforge.
+
+Example:
+   mkdir splines
+   cd splines
+   wget  https://www.hepforge.org/archive/genie/data/2.8.0/gxspl-vA-v2.8.0.xml.gz
+   gunzip gxspl-vA-v2.8.0.xml.gz
+      
+NOTE: you can also use more recent version of splines, e.g. 2_8_4
+
+  -- Composite target
+  
+MINERvA target is made of Hydrocarbon (CH), which should be treated as a composite target.
+
+  -- Flux file
+  
+The MINERvA flux files for nu and nubar have been extracted from the MINERvA publications.
+We have stored them with the application as 
+./flux-MINERvA/nu-flux-MINERvA.data
+./flux-MINERvA/nubar-flux-MINERvA.data
+
+  -- Running gengev with the neutrino projectile on Hydrocarbon tahget
+
+gevgen -r 1 -n 100000 -p 14 -e 1.5,10 -t1000010010[0.077418],1000060120[0.922582] \
+--cross-sections ./splines/gxspl-vA-v2.8.0.xml \
+-f ./flux-MINERvA/nu-flux-MINERvA.data
+
+This will generate 100K events for the neutrino ( -p 14 ) projectile incident of the 
+Hydrocarbon target (the -t argument field ) using splines for vA and MINERvA flux file.
+Based on the contents of the MINERvA flux file, the neutrino energy range is set at 1.5-10GeV 
+( -e 1.5,10).
+The run number is 1 ( -r 1 ). 
+Because the the run number is 1 in this case, the output file will be named gntp.1.ghep.root 
+(in general, the naming convenstion is gntp.<run-number>.ghep.root).
+
+4. GENIE Event Reweighting
+
+In this exercise we have used a custom-implemented re-weighting utility, which in its turn
+relies on the dedicated I/O infrastructure introduced specifically for tweak-weight objects.
+Please visit ReWeightIO and ReWeightExample packages, also in validation/MINERvA area; see
+corresponding README files for initial instructions.
+
+As a result of running ReWeightExample/rw_app 
+$GENIE/src/validation/MINERvA/ReWeightExample/rw_app -g <input-mc>.xml -s MaCCQE -t <twk1, twk2,...>
+the original GENIE sample (see above) can be updated by adding a "reweighting" tree.
+
+NOTE: "MaCCQE" is the name of the GENIE parameter that describes the axial mass for CC QE.
+For the list of other names, please see $GENIE/src/ReWeight/GSyst.h 
+
+We will use the resulting updated sample on input to out validation application. 
+
+
+5. The Experimental Data
+
+The data are stored in a plain ASCII file in the dedicated subdirectory:
+./exp-MINERvA/nu-Hydrocarbon.data
+./exp-MINERvA/nubar-Hydrocarbon.data
+
+
+6. Building the Validation Application
+
+Before building the validation application itself, one needs to build the RooMUHistos package,
+as it'll need to be linked (see earlier in this write-up)
+
+Once RooMUHisto is configured and built, the validation application can be build with the help of
+the provided Makefile; simply type "make".
+
+The resulting executable will be gvld_MINERvA_Q2_QE_CC.
+
+8. Running the Application
+
+At present the application allows to specify the experimental data at run time.
+
+The path  to GENIE sample and the path to GENIE re-weighting files are currently hardcoded.
+This will change in the near future.
+
+you can run it as follows:
+./gvld_MINERvA_Q2_QE_CC -d MINERvA_expdata_input.xml
+
+8. Output
+
+At present, the application produces 4 (four) GIF-formatted images per projectile-nucleon configuration:
+-- MINERvA-<projectile>-<nucleon>-Q2QE-1.gif - an overlay of MINERvA data and the GENIE predicions, including 
+                                               an uncertainty band on the MC, that come from varirying M_a 
+					       parameter of GENIE (re-weighting); the chi2/ndf on the CV histo
+	                                       is calculated using the data error matrix
+-- MINERvA-<projectile>-<nucleon>-Q2QE-2.gif - an overlay of MINERvA data and the GENIE predicions, where 
+                                               the uncertainty band is represented but several color-coded 
+					       histogram that the band is composed of; the chi2/ndf on the 
+					       CV histo is calculated using the data error matrix; the chi2/ndf 
+					       is also calculated for each variant in the band, also using 
+					       the data error matrix 
+-- MINERvA-<projectile>-<nucleon>-Q2QE-3.gif - Data/MC ratio plot, including the uncertainty band on the MC: 
+                                               the chi2/ndf on the CV histo is calculated using the uncertainties 
+					       on the MC (from re-weighting)
+-- MINERvA-<projectile>-<nucleon>-Q2QE-4.gif - an overlay of MINERvA and the GENIE predictions, including 
+                                               the uncertaintiy band on the MC, all in the form of "shape-only"; 
+					       the chi2/ndf is also calculated with the "shape-only" technique,
+	                                       using the data shape-only error matrix
+
+
+
+

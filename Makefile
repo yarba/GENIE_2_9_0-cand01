@@ -209,6 +209,10 @@ vld-tools: FORCE
 ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
 	@echo " "
 	@echo "** Building GENIE validation tools..."
+	cd ${GENIE}/src/DataComp/Base; \
+	make; \
+	cd ${GENIE}/src/DataComp/MINERvA; \
+	make; \
 	cd ${GENIE}/src/validation/EvScan; \
 	make; \
 	cd ${GENIE}/src/validation/MCx; \
@@ -226,6 +230,11 @@ ifeq ($(strip $(GOPT_ENABLE_VALIDATION_TOOLS)),YES)
 	cd ${GENIE}/src/validation/eA; \
 	make; \
 	cd ${GENIE}
+ifeq ($(strip $(GOPT_ENABLE_ROOMUHISTOS)),YES)
+	cd ${GENIE}/src/validation/MINERvA; \
+	make; \
+	cd ${GENIE}
+endif
 else
 	@echo " "
 	@echo "** GENIE validation tools were disabled. Skipping..."
@@ -502,6 +511,8 @@ purge: FORCE
 	cd Decay;                         make purge; cd ..; \
 	cd Diffractive;                   make purge; cd ..; \
 	cd DIS;                           make purge; cd ..; \
+	cd DataComp/MINERvA;              make purge; cd ../../; \
+	cd DataComp/Base;                 make purge; cd ..; \
 	cd Elastic;                       make purge; cd ..; \
 	cd ElFF;                          make purge; cd ..; \
 	cd EVGCore;                       make purge; cd ..; \
@@ -561,6 +572,8 @@ clean-files: FORCE
 	cd Decay;                         make clean; cd ..; \
 	cd Diffractive;                   make clean; cd ..; \
 	cd DIS;                           make clean; cd ..; \
+	cd DataComp/MINERvA;              make clean; cd ../../; \
+	cd DataComp/Base;                 make clean; cd ..; \
 	cd Elastic;                       make clean; cd ..; \
 	cd ElFF;                          make clean; cd ..; \
 	cd EVGCore;                       make clean; cd ..; \
@@ -600,6 +613,7 @@ clean-files: FORCE
 	cd validation/Hadronization;      make clean; cd ../../; \
 	cd validation/Merenyi;            make clean; cd ../../; \
 	cd validation/eA;                 make clean; cd ../../; \
+	cd validation/MINERvA;            make clean; cd ../../; \
 	cd VLE;                           make clean; cd ..; \
 	cd VHE;                           make clean; cd ..; \
 	cd stdapp;                        make clean; cd ..; \
@@ -642,6 +656,8 @@ distclean: FORCE
 	cd Decay;                          make distclean; cd ..; \
 	cd Diffractive;                    make distclean; cd ..; \
 	cd DIS;                            make distclean; cd ..; \
+	cd DataComp/MINERvA;               make distclean; cd ../../; \
+	cd DataComp/Base;                  make distclean; cd ..; \
 	cd Elastic;                        make distclean; cd ..; \
 	cd ElFF;                           make distclean; cd ..; \
 	cd EVGCore;                        make distclean; cd ..; \
@@ -681,6 +697,7 @@ distclean: FORCE
 	cd validation/Hadronization;       make distclean; cd ../../; \
 	cd validation/Merenyi;             make distclean; cd ../../; \
 	cd validation/eA;                  make distclean; cd ../../; \
+	cd validation/MINERvA;             make distclean; cd ../../; \
 	cd VLE;                            make distclean; cd ..; \
 	cd VHE;                            make distclean; cd ..; \
 	cd stdapp;                         make distclean; cd ..; \
