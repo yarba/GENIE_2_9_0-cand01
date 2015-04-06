@@ -9,17 +9,19 @@ if [ -e ${MCINPUT} ]; then
 rm -f ${MCINPUT}
 fi
 
+rm -f *.root
+
 splinefile=`ls -AlF ${XSECSPLINEDIR}/*.xml | awk '{print $NF}'`
 
 # gevgen -r 1 -n 10000 -p 14 -e 1.5,10 -t1000010010[0.077418],1000060120[0.922582] \
 #--cross-sections ./splines/gxspl-vA-v2.8.0.xml \
 # -f ./flux-MINERvA/nu-flux-MINERvA.data
 #
-gevgen -r 1 -n 10000 -p 14 -e 1.5,10 -t1000010010[0.077418],1000060120[0.922582] --cross-sections $splinefile -f ./flux-MINERvA/nu-flux-MINERvA.data
+gevgen -r 1 -n 10000 -p 14 -e 1.5,10 -t1000010010[0.077418],1000060120[0.922582] --cross-sections $splinefile -f ./flux-MINERvA/nu-flux-MINERvA.data --event-record-print-level 0
 
 printf "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" >> ${MCINPUT}
 printf "<genie_simulation_outputs>\n"                      >> ${MCINPUT}
-printf "<model name=\"${GENIRVER}\">\n"                    >> ${MCINPUT}
+printf "<model name=\"${1}\">\n"                           >> ${MCINPUT}
 printf "<evt_file format=\"ghep\"> ./gntp.1.ghep.root </evt_file>\n" >> ${MCINPUT}
 printf "</model>\n"                                        >> ${MCINPUT}
 printf "</genie_simulation_outputs>"                       >> ${MCINPUT}
